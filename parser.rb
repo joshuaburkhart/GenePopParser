@@ -2,17 +2,20 @@
 #Usage: ruby parser.rb <genepop file>
 
 genepop_filename = ARGV[0]
+out_filename = "genepop_summary.csv"
 
 genepop_filehandl = File.open(genepop_filename,"r")
-out_filehandl = File.open("summary.txt","w")
+out_filehandl = File.open(out_filename,"w")
 
 next_pop = false
-marker_name_ary = nil 
+marker_name_ary = nil
+iter = 0
+print "reading \'#{genepop_filename}\'..."
 while(line = genepop_filehandl.gets)
     if(line.match(/^([0-9]+_[0-9]+,)+[0-9]+_[0-9]+$/))
         marker_name_ary = line.strip.split(',')
-        out_filehandl.puts "\t#{marker_name_ary.join("\t\t\t\t\t\t")}"
-        out_filehandl.puts "\t#{"1,2,3,4\t\t\t\t\t\t"*marker_name_ary.size}"
+        out_filehandl.puts ",#{marker_name_ary.join(",,,,")}"
+        out_filehandl.puts ",#{"1,2,3,4,"*marker_name_ary.size}"
     elsif(line.match(/^pop$/) || next_pop == true)
         next_pop = false
         pop_ary = Array.new
@@ -21,7 +24,7 @@ while(line = genepop_filehandl.gets)
             if(idx == 0)
                 pop_line.match(/^([a-zA-Z0-9]+)/)
                 indv_name = $1
-                out_filehandl.print "#{indv_name}\t"
+                out_filehandl.print "#{indv_name},"
             end
             exprsn = pop_line.scan(/\s+([0-9]{4})/)
             pop_ary[idx] = exprsn
@@ -34,23 +37,26 @@ while(line = genepop_filehandl.gets)
                 tres = 0.0
                 fors = 0.0
                 for j in 0..(pop_ary.size - 1)
-                    puts "pop_ary.size: #{pop_ary.size}"
-                    puts "pop_ary[0].size: #{pop_ary[0].size}"
-                    puts "i: #{i}"
-                    puts "j: #{j}"
                     ones += pop_ary[j][i][0].count("1")
                     twos += pop_ary[j][i][0].count("2")
                     tres += pop_ary[j][i][0].count("3")
                     fors += pop_ary[j][i][0].count("4")
                 end
-                out_filehandl.print "#{ones/pop_ary.size},#{twos/pop_ary.size},#{tres/pop_ary.size},#{fors/pop_ary.size}\t"
+                out_filehandl.print "#{ones/pop_ary.size},#{twos/pop_ary.size},#{tres/pop_ary.size},#{fors/pop_ary.size}"
             end
             out_filehandl.puts
         end
         next_pop = true
     else
-        puts "Unused line: #{line}"
+        if(!line.match(/^Stacks.*$/))
+           puts "Unused line: #{line}"
+        end
     end
+    print "."
+    $stdout.flush
+    iter += 1
 end
+puts
 genepop_filehandl.close
 out_filehandl.close
+puts "Done. Output written to \'#{out_filename}\'"
