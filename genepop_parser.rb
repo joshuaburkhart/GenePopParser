@@ -1,5 +1,8 @@
 #!/usr/bin/ruby
-#Usage: ruby parser.rb <genepop file>
+
+#Usage: ruby genepop_parser.rb <genepop file>
+
+#Example: ruby genepop_parser.rb input/batch_1_genepop_9.txt
 
 genepop_filename = ARGV[0]
 out_filename = "genepop_summary.csv"
